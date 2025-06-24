@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.ipynb_checkpoints
+*.pkl
+*.log
+
+# Virtual environment
+.env/
+.venv/
+env/
+venv/
+ENV/
+*.env
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# PyTorch/MiDaS/YOLO cache
+runs/
+*.pt
+*.onnx
+*.engine
+*.trt
+*.cache
+*.ckpt
+
+# OpenCV temp files
+*.avi
+*.mp4
+*.mov
+
+# Project outputs
+output/
+results/
+frames/
+videos/
+depth_maps/
+
+# pip
+pip-log.txt
+
+# PyTorch Hub
+~/.cache/torch/hub/
+
+# Model directories
+yolov5/
+midas/
+
+# JetBrains IDEs
+.idea/
+
+# PyCharm
+*.iml
+
+# Logs and temp
+*.tmp
+*.log
+logs/
+temp/
+
