@@ -11,7 +11,6 @@
 - 🎞️ Frame-by-frame video analysis
 - 🧠 Annotated bounding boxes with labels, confidence, and estimated depth
 - 💾 Outputs a processed video with overlays
-- ⚡ GPU-accelerated inference (CUDA recommended)
 
 ---
 
