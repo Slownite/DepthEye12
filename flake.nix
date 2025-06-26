@@ -1,52 +1,71 @@
 {
-  description = "Depth Eye Project";
+  description = "DepthEye dev shell with venv, OpenCV imshow, and custom Neovim config";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          inherit system;
-        };
+        pkgs = import nixpkgs { inherit system; };
 
-        numpyDeps = with pkgs; [
-          blas
-          lapack
-          libffi
-          stdenv.cc.cc
-          gcc.cc.lib
-        ];
-
-        # If you need Python support in Neovim
-        pythonForNeovim = pkgs.python3.withPackages (ps: with ps; [
-          pynvim
+        pythonEnv = pkgs.python312.withPackages (ps: with ps; [
+          pip
+          setuptools
+          wheel
+          pynvim  # Neovim Python integration
         ]);
-        venvDir = "./venv";
       in {
         devShells.default = pkgs.mkShell {
           buildInputs = [
-            pkgs.python313
-            pkgs.python313Packages.pip
+            pythonEnv
+            pkgs.ffmpeg
+            # OpenCV imshow GUI dependencies
+            pkgs.zlib
+            pkgs.libglvnd
+            pkgs.glib
+            pkgs.qt5.full
+            pkgs.xorg.libxcb
+            pkgs.xorg.xcbutil
+            pkgs.fontconfig
+            pkgs.freetype
+            pkgs.libxkbcommon
+            
+            # C++ runtime needed for OpenCV (libstdc++.so.6)
+            pkgs.stdenv.cc.cc
+            pkgs.gcc.cc.lib
+            # Neovim editor
             pkgs.neovim
-            pkgs.tree
-            pkgs.git
-            pkgs.cmake
-            pythonForNeovim
-          ] ++ numpyDeps;
+          ];
 
           shellHook = ''
-            echo "Neovim available. Using config from: $HOME/.config/nvim"
-            if [ ! -d "${venvDir}" ]; then
-                python -m venv ${venvDir}
-              fi
-              source ${venvDir}/bin/activate
-            export EDITOR=nvim
-            export LD_LIBRARY_PATH=${pkgs.gcc.cc.lib}/lib:$LD_LIBRARY_PATH
+            # Setup Python virtualenv if not present
+            if [ ! -d "./venv" ]; then
+              python -m venv ./venv
+            fi
+            source ./venv/bin/activate
+
+            # OpenCV + Qt5 plugin support
+              export QT_QPA_PLATFORM_PLUGIN_PATH=${pkgs.qt5.qtbase.bin}/lib/qt-5/plugins
+            export QT_PLUGIN_PATH="${pkgs.qt5.qtbase.bin}/lib/qt-5/plugins"
+
+            # Fix all runtime libraries for OpenCV GUI & C++
+            export LD_LIBRARY_PATH="${pkgs.zlib}/lib:\
+${pkgs.libglvnd}/lib:\
+${pkgs.glib.out}/lib:\
+${pkgs.qt5.qtbase}/lib:\
+${pkgs.xorg.libxcb}/lib:\
+${pkgs.stdenv.cc.cc}/lib:\
+$LD_LIBRARY_PATH"
+  export LD_LIBRARY_PATH="${pkgs.gcc.cc.lib}/lib:$LD_LIBRARY_PATH"
+            # Ensure Neovim uses user config
+            export XDG_CONFIG_HOME="$HOME/.config"
+
+            echo "✅ venv activated | OpenCV imshow ready | Neovim using ~/.config/nvim"
           '';
         };
       });
 }
+

@@ -38,9 +38,10 @@ runs/
 *.avi
 *.mp4
 *.mov
-
+*.jpg
 # Project outputs
 output/
+out/
 results/
 frames/
 videos/
